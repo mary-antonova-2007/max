@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     libasound2t64 \
     libgbm1 \
+    libfontenc1 \
     libopengl0 \
     libgtk-3-0 \
     libnotify4 \
@@ -21,9 +22,11 @@ RUN apt-get update && apt-get install -y \
     libxcb-icccm4 \
     libxcb-image0 \
     libxcb-keysyms1 \
+    libxcb-res0 \
     libxcb-render-util0 \
     libxcb-xkb1 \
     libxkbcommon-x11-0 \
+    libxres1 \
     libsecret-1-0 \
     libxss1 \
     libpipewire-0.3-0t64 \
