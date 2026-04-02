@@ -4,14 +4,20 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 container_name="max-isolated"
+compose_cmd=()
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker не найден"
   exit 1
 fi
 
-if ! docker compose version >/dev/null 2>&1; then
+if docker compose version >/dev/null 2>&1; then
+  compose_cmd=(docker compose)
+elif command -v docker-compose >/dev/null 2>&1; then
+  compose_cmd=(docker-compose)
+else
   echo "docker compose не найден"
+  echo "Установи Docker Compose plugin или docker-compose."
   exit 1
 fi
 
@@ -49,7 +55,7 @@ if command -v xhost >/dev/null 2>&1 && [[ -n "${display_value}" ]]; then
   xhost +SI:localuser:"$(whoami)" >/dev/null 2>&1 || true
 fi
 
-docker compose --env-file .docker/max.env up -d --build "$@"
+"${compose_cmd[@]}" --env-file .docker/max.env up -d --build "$@"
 
 echo "Жду запуск MAX..."
 
@@ -65,14 +71,14 @@ status="$(docker inspect "${container_name}" --format '{{.State.Status}}' 2>/dev
 if [[ "${status}" != "running" ]]; then
   echo
   echo "Контейнер не перешел в состояние running. Последние логи:"
-  docker compose logs --tail=80
+  "${compose_cmd[@]}" logs --tail=80
   exit 1
 fi
 
 if ! docker exec "${container_name}" bash -lc 'ps -ef | grep -q "[/]usr/share/max/bin/crashpad_handler" && ps -ef | grep -q "[[:space:]]max$"'; then
   echo
   echo "MAX внутри контейнера не выглядит полностью запущенным. Последние логи:"
-  docker compose logs --tail=80
+  "${compose_cmd[@]}" logs --tail=80
   exit 1
 fi
 
@@ -82,5 +88,5 @@ docker exec "${container_name}" bash -lc 'printf "DISPLAY=%s\nWAYLAND_DISPLAY=%s
 
 echo
 echo "MAX запущен. Окно должно появиться автоматически."
-echo "Если окно не появилось, проверь: docker compose logs -f"
-echo "Остановить: docker compose down"
+echo "Если окно не появилось, проверь: ${compose_cmd[*]} logs -f"
+echo "Остановить: ${compose_cmd[*]} down"
