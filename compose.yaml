@@ -1,0 +1,35 @@
+services:
+  max:
+    build:
+      context: .
+    container_name: max-isolated
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-}
+      XDG_RUNTIME_DIR: /tmp/runtime-appuser
+      PULSE_SERVER: ${PULSE_SERVER:-}
+      MAX_USE_HOST_DBUS: ${MAX_USE_HOST_DBUS:-0}
+      HOST_DBUS_SESSION_BUS_ADDRESS: ${DBUS_SESSION_BUS_ADDRESS:-}
+      HOST_XDG_RUNTIME_DIR: /host-runtime
+      QT_QPA_PLATFORM: ${QT_QPA_PLATFORM:-wayland;xcb}
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - max_home:/home/appuser
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XDG_RUNTIME_DIR:-/run/user/1000}:/host-runtime:ro
+      - /mnt/wslg:/mnt/wslg:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+      - /var/tmp
+      - /dev/shm:size=512m
+    network_mode: bridge
+    restart: unless-stopped
+
+volumes:
+  max_home:
