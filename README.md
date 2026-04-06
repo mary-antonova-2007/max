@@ -35,6 +35,16 @@ docker compose down
 - PulseAudio/PipeWire сокет для звука
 - `/mnt/wslg`, если запуск идет в WSLg
 - отдельный volume `max_home` для данных приложения
+- папка проекта `./shared`, смонтированная в `/home/appuser/Downloads` для обмена файлами с MAX
+
+## Обмен файлами с хостом
+
+- Кладите файлы для отправки в `./shared/inbox`
+- Внутри контейнера и в MAX эта папка доступна как `/home/appuser/Downloads`
+- Для удобства можно использовать:
+- `/home/appuser/Downloads/inbox` для файлов, которые хотите отправить из MAX
+- `/home/appuser/Downloads/outbox` для файлов, которые сохраняете или скачиваете из MAX
+- Всё из этих папок на хосте будет доступно в `./shared/inbox` и `./shared/outbox`
 
 ## Ограничения
 

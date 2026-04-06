@@ -15,6 +15,7 @@ services:
       QT_X11_NO_MITSHM: "1"
     volumes:
       - max_home:/home/appuser
+      - ./shared:/home/appuser/Downloads
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XDG_RUNTIME_DIR:-/run/user/1000}:/host-runtime:ro
       - /mnt/wslg:/mnt/wslg:ro
