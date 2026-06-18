@@ -7,15 +7,19 @@ chmod 700 "${XDG_RUNTIME_DIR:-/tmp/runtime-appuser}" || true
 
 host_runtime_dir="${HOST_XDG_RUNTIME_DIR:-/host-runtime}"
 
-wayland_name="${WAYLAND_DISPLAY:-wayland-0}"
-if [[ -S "${host_runtime_dir}/${wayland_name}" ]]; then
-  ln -sf "${host_runtime_dir}/${wayland_name}" "${XDG_RUNTIME_DIR}/${wayland_name}"
-  export WAYLAND_DISPLAY="${wayland_name}"
-elif [[ -S "/mnt/wslg/runtime-dir/${wayland_name}" ]]; then
-  ln -sf "/mnt/wslg/runtime-dir/${wayland_name}" "${XDG_RUNTIME_DIR}/${wayland_name}"
-  export WAYLAND_DISPLAY="${wayland_name}"
-elif [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+if [[ "${MAX_DISPLAY_BACKEND:-}" == "x11" ]]; then
   unset WAYLAND_DISPLAY
+else
+  wayland_name="${WAYLAND_DISPLAY:-wayland-0}"
+  if [[ -S "${host_runtime_dir}/${wayland_name}" ]]; then
+    ln -sf "${host_runtime_dir}/${wayland_name}" "${XDG_RUNTIME_DIR}/${wayland_name}"
+    export WAYLAND_DISPLAY="${wayland_name}"
+  elif [[ -S "/mnt/wslg/runtime-dir/${wayland_name}" ]]; then
+    ln -sf "/mnt/wslg/runtime-dir/${wayland_name}" "${XDG_RUNTIME_DIR}/${wayland_name}"
+    export WAYLAND_DISPLAY="${wayland_name}"
+  elif [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+    unset WAYLAND_DISPLAY
+  fi
 fi
 
 if [[ -z "${PULSE_SERVER:-}" ]]; then

@@ -27,8 +27,17 @@ runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 pulse_value="${PULSE_SERVER:-}"
 dbus_value="${DBUS_SESSION_BUS_ADDRESS:-}"
 qt_platform_value="${QT_QPA_PLATFORM:-}"
+display_backend="${MAX_DISPLAY_BACKEND:-}"
+gdk_backend_value="${GDK_BACKEND:-}"
+xdg_session_type_value="${XDG_SESSION_TYPE:-}"
+xcursor_theme_value="${XCURSOR_THEME:-}"
+xcursor_size_value="${XCURSOR_SIZE:-}"
+qtwebengine_flags_value="${QTWEBENGINE_CHROMIUM_FLAGS:-}"
 
 if [[ -d /mnt/wslg ]]; then
+  if [[ -z "${display_backend}" ]]; then
+    display_backend="auto"
+  fi
   if [[ -z "${wayland_value}" && -S "${runtime_dir%/}/wayland-0" ]]; then
     wayland_value="wayland-0"
   fi
@@ -36,7 +45,17 @@ if [[ -d /mnt/wslg ]]; then
     qt_platform_value="wayland;xcb"
   fi
 elif [[ -z "${qt_platform_value}" ]]; then
+  if [[ -z "${display_backend}" ]]; then
+    display_backend="x11"
+  fi
   qt_platform_value="xcb"
+fi
+
+if [[ "${display_backend}" == "x11" ]]; then
+  wayland_value=""
+  qt_platform_value="${QT_QPA_PLATFORM:-xcb}"
+  gdk_backend_value="${GDK_BACKEND:-x11}"
+  xdg_session_type_value="${XDG_SESSION_TYPE:-x11}"
 fi
 
 mkdir -p .docker
@@ -48,7 +67,13 @@ XDG_RUNTIME_DIR=${runtime_dir}
 PULSE_SERVER=${pulse_value}
 DBUS_SESSION_BUS_ADDRESS=${dbus_value}
 MAX_USE_HOST_DBUS=0
+MAX_DISPLAY_BACKEND=${display_backend}
 QT_QPA_PLATFORM=${qt_platform_value}
+GDK_BACKEND=${gdk_backend_value}
+XDG_SESSION_TYPE=${xdg_session_type_value}
+XCURSOR_THEME=${xcursor_theme_value}
+XCURSOR_SIZE=${xcursor_size_value}
+QTWEBENGINE_CHROMIUM_FLAGS=${qtwebengine_flags_value}
 EOF
 
 if command -v xhost >/dev/null 2>&1 && [[ -n "${display_value}" ]]; then
@@ -83,8 +108,14 @@ if ! docker exec "${container_name}" bash -lc 'ps -ef | grep -q "[/]usr/share/ma
 fi
 
 echo
-echo "GUI окружение внутри контейнера:"
-docker exec "${container_name}" bash -lc 'printf "DISPLAY=%s\nWAYLAND_DISPLAY=%s\nQT_QPA_PLATFORM=%s\n" "$DISPLAY" "${WAYLAND_DISPLAY:-}" "${QT_QPA_PLATFORM:-}"; ls -l /tmp/runtime-appuser 2>/dev/null || true'
+echo "GUI окружение процесса MAX:"
+docker exec "${container_name}" bash -lc '
+pid="$(pgrep -xo max || true)"
+if [[ -n "${pid}" ]]; then
+  tr "\0" "\n" < "/proc/${pid}/environ" | sort | grep -E "^(DISPLAY|WAYLAND_DISPLAY|MAX_DISPLAY_BACKEND|QT_QPA_PLATFORM|GDK_BACKEND|XDG_SESSION_TYPE|XCURSOR_THEME|XCURSOR_SIZE|QTWEBENGINE_CHROMIUM_FLAGS)=" || true
+fi
+ls -l /tmp/runtime-appuser 2>/dev/null || true
+'
 
 echo
 echo "MAX запущен. Окно должно появиться автоматически."

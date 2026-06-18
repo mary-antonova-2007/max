@@ -27,6 +27,28 @@ docker compose logs -f
 docker compose down
 ```
 
+## Если пропадает курсор в окне MAX
+
+В WSLg встречается баг, при котором курсор пропадает над Linux GUI окнами. Самый надежный workaround - перезапустить WSLg с Windows-стороны:
+
+```powershell
+wsl.exe --shutdown
+```
+
+После этого заново откройте Ubuntu/WSL и запустите:
+
+```bash
+./run.sh
+```
+
+Если нужно проверить X11/XWayland режим отдельно, можно запустить так:
+
+```bash
+MAX_DISPLAY_BACKEND=x11 QT_QPA_PLATFORM=xcb GDK_BACKEND=x11 ./run.sh
+```
+
+Но для MAX под WSLg штатный Wayland-режим обычно безопаснее: X11/XWayland может сделать проблему с курсором хуже.
+
 ## Что пробрасывается в контейнер
 
 - X11 сокет `/tmp/.X11-unix`
