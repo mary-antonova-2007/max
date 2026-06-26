@@ -19,6 +19,7 @@ services:
       XCURSOR_SIZE: ${XCURSOR_SIZE:-}
       QTWEBENGINE_CHROMIUM_FLAGS: ${QTWEBENGINE_CHROMIUM_FLAGS:-}
       QT_X11_NO_MITSHM: "1"
+      TZ: ${TZ:-Etc/GMT-3}
     volumes:
       - max_home:/home/appuser
       - ./shared:/home/appuser/Downloads

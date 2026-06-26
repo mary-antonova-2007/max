@@ -3,6 +3,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
+ENV TZ=Etc/GMT-3
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \
@@ -30,9 +31,13 @@ RUN apt-get update && apt-get install -y \
     libsecret-1-0 \
     libxss1 \
     libpipewire-0.3-0t64 \
+    tzdata \
     xauth \
     xdg-utils \
     && rm -rf /var/lib/apt/lists/*
+
+RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
+    echo "${TZ}" > /etc/timezone
 
 RUN mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://download.max.ru/linux/deb/public.asc | gpg --dearmor -o /etc/apt/keyrings/max.gpg && \
@@ -51,7 +56,10 @@ RUN if getent passwd 1000 >/dev/null; then \
     fi
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY docker/max-service-wrapper.sh /usr/local/bin/max-service-wrapper.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/max-service-wrapper.sh && \
+    mv /usr/share/max/bin/max-service/bin/max-service /usr/share/max/bin/max-service/bin/max-service.real && \
+    ln -s /usr/local/bin/max-service-wrapper.sh /usr/share/max/bin/max-service/bin/max-service
 
 USER appuser
 WORKDIR /home/appuser

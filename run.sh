@@ -33,6 +33,7 @@ xdg_session_type_value="${XDG_SESSION_TYPE:-}"
 xcursor_theme_value="${XCURSOR_THEME:-}"
 xcursor_size_value="${XCURSOR_SIZE:-}"
 qtwebengine_flags_value="${QTWEBENGINE_CHROMIUM_FLAGS:-}"
+timezone_value="${TZ:-Etc/GMT-3}"
 
 if [[ -d /mnt/wslg ]]; then
   if [[ -z "${display_backend}" ]]; then
@@ -74,6 +75,7 @@ XDG_SESSION_TYPE=${xdg_session_type_value}
 XCURSOR_THEME=${xcursor_theme_value}
 XCURSOR_SIZE=${xcursor_size_value}
 QTWEBENGINE_CHROMIUM_FLAGS=${qtwebengine_flags_value}
+TZ=${timezone_value}
 EOF
 
 if command -v xhost >/dev/null 2>&1 && [[ -n "${display_value}" ]]; then
@@ -112,7 +114,7 @@ echo "GUI окружение процесса MAX:"
 docker exec "${container_name}" bash -lc '
 pid="$(pgrep -xo max || true)"
 if [[ -n "${pid}" ]]; then
-  tr "\0" "\n" < "/proc/${pid}/environ" | sort | grep -E "^(DISPLAY|WAYLAND_DISPLAY|MAX_DISPLAY_BACKEND|QT_QPA_PLATFORM|GDK_BACKEND|XDG_SESSION_TYPE|XCURSOR_THEME|XCURSOR_SIZE|QTWEBENGINE_CHROMIUM_FLAGS)=" || true
+  tr "\0" "\n" < "/proc/${pid}/environ" | sort | grep -E "^(DISPLAY|WAYLAND_DISPLAY|MAX_DISPLAY_BACKEND|QT_QPA_PLATFORM|GDK_BACKEND|XDG_SESSION_TYPE|XCURSOR_THEME|XCURSOR_SIZE|QTWEBENGINE_CHROMIUM_FLAGS|TZ)=" || true
 fi
 ls -l /tmp/runtime-appuser 2>/dev/null || true
 '
