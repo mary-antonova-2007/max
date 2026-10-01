@@ -1,5 +1,7 @@
 # MAX в Docker
 
+Отдельный вариант для Windows с Android Emulator описан в [android/README.md](android/README.md).
+
 Этот каталог поднимает официальный Linux-клиент MAX в изолированном Docker-контейнере с GUI, звуком и отдельным writable home.
 
 Основа установки берется из официального Linux-репозитория MAX:

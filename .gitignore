@@ -1,2 +1,9 @@
 .docker/
 shared/
+android/downloads/
+android/sdk/
+android/avd/
+android/home/
+android/logs/
+android/outbox/
+android/config.local.json
